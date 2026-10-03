@@ -1,70 +1,421 @@
-
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Iuran TeamMixing</title>
-    <!-- Tailwind CSS untuk desain modern ala v0 -->
-    <script src="https://jsdelivr.net"></script>
-    <!-- Lucide Icons untuk ikon premium -->
-    <script src="https://unpkg.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aplikasi Manajemen Iuran & Informasi</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    .marquee {
+      white-space: nowrap;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+    .marquee span {
+      display: inline-block;
+      padding-left: 100%;
+      animation: marquee 15s linear infinite;
+    }
+    @keyframes marquee {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(-100%, 0); }
+    }
+  </style>
 </head>
-<body class="bg-slate-955 text-slate-100 min-h-screen font-sans antialiased selection:bg-blue-500/30">
+<body class="bg-slate-50 text-slate-800 font-sans pb-12">
 
-    <div class="max-w-5xl mx-auto px-4 py-8">
-        <!-- HEADER INTERAKTIF -->
-        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 pb-6 border-b border-slate-800/80 gap-4">
-            <div>
-                <div class="flex items-center gap-2">
-                    <span class="p-2 bg-blue-500/10 rounded-lg text-blue-400 border border-blue-500/20">
-                        <i data-lucide="wallet" class="w-6 h-6"></i>
-                    </span>
-                    <h1 class="text-2xl font-black tracking-tight bg-gradient-to-r from-blue-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent">
-                        TeamMixing Finance
-                    </h1>
-                </div>
-                <p class="text-xs text-slate-400 mt-2 pl-1">Sistem Pemantauan & Transparansi Iuran Bulanan Tim</p>
-            </div>
-            <!-- Info Nominal Tetap -->
-            <div class="flex flex-col sm:items-end gap-1">
-                <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-300 shadow-sm">
-                    <i data-lucide="check-circle" class="w-4 h-4 text-blue-400"></i>
-                    <span>Wajib: Rp 30.000 / bulan</span>
-                </div>
-            </div>
-        </header>
+  <!-- TOP BAR / HEADER -->
+  <header class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white p-4 shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <div class="flex items-center gap-2">
+        <i data-lucide="wallet" class="w-7 h-7"></i>
+        <h1 class="text-xl font-bold tracking-wide">Sistem Iuran Mixing</h1>
+      </div>
+      <div class="text-xs sm:text-sm bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/30">
+        Status: <span id="api-status" class="font-semibold text-emerald-300">Terhubung</span>
+      </div>
+    </div>
+  </header>
 
-        <!-- KARTU UTAMA LAPORAN -->
-        <main class="bg-slate-900 border border-slate-800/80 rounded-2xl shadow-2xl overflow-hidden">
-            <!-- Filter & Fitur Cari -->
-            <div class="p-5 border-b border-slate-800/80 bg-slate-900/50 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <h2 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                    <i data-lucide="layers" class="w-4 h-4 text-blue-400"></i> Rekapitulasi Pembayaran
-                </h2>
-                <!-- Kolom Pencarian -->
-                <div class="relative w-full sm:w-72">
-                    <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-slate-500"></i>
-                    <input type="text" id="searchInput" placeholder="Cari nama anggota..." 
-                           class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-600">
-                </div>
-            </div>
+  <!-- RUNNING TEXT (TEXT BERJALAN) -->
+  <div class="bg-indigo-950 text-indigo-200 py-2 px-4 shadow-inner border-b border-indigo-800">
+    <div class="max-w-7xl mx-auto flex items-center gap-3">
+      <span class="bg-rose-500 text-white text-xs font-bold px-2 py-0.5 rounded flex items-center gap-1 shrink-0">
+        <i data-lucide="bell" class="w-3 h-3"></i> INFO
+      </span>
+      <div class="marquee w-full text-sm font-medium">
+        <span id="marquee-text">Selamat datang di Aplikasi Iuran Mixing! Harap segera melakukan pelunasan iuran bulanan untuk menjaga kelancaran kegiatan bersama. Terima kasih!</span>
+      </div>
+    </div>
+  </div>
 
-            <!-- Tabel Data Sesuai Kolom Anda -->
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-950 text-[11px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-800/60">
-                            <th class="px-6 py-4 w-16 text-center">No</th>
-                            <th class="px-6 py-4">Nama Anggota</th>
-                            <th class="px-6 py-4">Bulan</th>
-                            <th class="px-6 py-4">Nominal</th>
-                            <th class="px-6 py-4 text-center">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody" class="divide-y divide-slate-800/50 text-xs">
-                        <!-- Indikator Loading Awal -->
-                        <tr>
-                            <td colspan="5" class="px-6 py-16 text-center text-slate-500">
-                                <div class="flex flex-col items-center justify-center gap-3">
-                                    <div
+  <main class="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
+
+    <!-- FILTER & ACTION HEADER -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+      <div>
+        <h2 class="text-lg font-bold text-slate-800">Ringkasan & Statistik</h2>
+        <p class="text-xs text-slate-500">Pilih periode untuk memfilter data diagram</p>
+      </div>
+      <div class="flex items-center gap-3 w-full sm:w-auto">
+        <select id="filter-periode" onchange="updateCharts()" class="bg-slate-100 border border-slate-300 text-slate-700 text-sm rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-auto">
+          <option value="ALL">Semua Periode (Total)</option>
+          <option value="Agustus 2026">Agustus 2026</option>
+          <option value="September 2026">September 2026</option>
+          <option value="Oktober 2026">Oktober 2026</option>
+        </select>
+        <button onclick="openModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition shadow-md shrink-0">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i> Tambah Data
+        </button>
+      </div>
+    </div>
+
+    <!-- DIAGRAM PERSENTASE SECTION -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Diagram Pemasukan vs Pengeluaran -->
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center">
+        <h3 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2 self-start">
+          <i data-lucide="pie-chart" class="w-4 h-4 text-indigo-500"></i> Rasio Pemasukan vs Pengeluaran
+        </h3>
+        <div class="w-64 h-64 relative">
+          <canvas id="chartKeuangan"></canvas>
+        </div>
+      </div>
+
+      <!-- Diagram Lunas vs Belum Lunas -->
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center">
+        <h3 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2 self-start">
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500"></i> Rasio Pelunasan Iuran
+        </h3>
+        <div class="w-64 h-64 relative">
+          <canvas id="chartStatus"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABEL DATA IURAN (SHEET1: iuran) -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <div class="p-5 border-b border-slate-100 flex justify-between items-center">
+        <h3 class="font-bold text-slate-800 flex items-center gap-2">
+          <i data-lucide="table" class="w-4 h-4 text-indigo-600"></i> Data Iuran Anggota
+        </h3>
+        <span class="text-xs text-slate-400">Sheet: iuran</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-slate-600">
+          <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-100">
+            <tr>
+              <th class="px-4 py-3">ID</th>
+              <th class="px-4 py-3">Nama</th>
+              <th class="px-4 py-3">Periode</th>
+              <th class="px-4 py-3">Nominal</th>
+              <th class="px-4 py-3">Status</th>
+              <th class="px-4 py-3">Kegiatan</th>
+              <th class="px-4 py-3 text-center">Aksi / WA</th>
+            </tr>
+          </thead>
+          <tbody id="table-iuran-body">
+            <!-- Data dimasukkan secara dinamis via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MEDIA PLAYER & KOMENTAR ANGGOTA SECTION -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- KOTAK PEMUTAR VIDEO -->
+      <div class="lg:col-span-1 bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+        <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+          <i data-lucide="video" class="w-4 h-4 text-rose-500"></i> Media & Dokumentasi
+        </h3>
+        <div class="relative w-full aspect-video rounded-xl overflow-hidden bg-black shadow-inner">
+          <iframe class="w-full h-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Video Kegiatan" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        <p class="text-xs text-slate-500 mt-2">Video dokumentasi kegiatan sosial dan laporan pertanggungjawaban iuran.</p>
+      </div>
+
+      <!-- KOTAK KOMENTAR ANGGOTA (SHEET2: pengumuman) -->
+      <div class="lg:col-span-2 bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
+        <div>
+          <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+            <i data-lucide="message-square" class="w-4 h-4 text-indigo-500"></i> Forum & Komentar Anggota
+          </h3>
+          
+          <!-- LIST KOMENTAR -->
+          <div id="komentar-list" class="space-y-3 max-h-56 overflow-y-auto pr-2 mb-4">
+            <!-- Loading placeholder -->
+            <p class="text-xs text-slate-400">Memuat komentar...</p>
+          </div>
+        </div>
+
+        <!-- FORM INPUT KOMENTAR -->
+        <form id="form-komentar" onsubmit="handleKirimKomentar(event)" class="border-t border-slate-100 pt-3 flex gap-2">
+          <input type="text" id="komentar-nama" placeholder="Nama Anda" required class="w-1/3 bg-slate-50 border border-slate-200 text-xs rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-indigo-500">
+          <input type="text" id="komentar-teks" placeholder="Tulis komentar/pengumuman..." required class="w-2/3 bg-slate-50 border border-slate-200 text-xs rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-indigo-500">
+          <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1 shrink-0">
+            <i data-lucide="send" class="w-3 h-3"></i> Kirim
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- MODAL FORM EDIT / TAMBAH DATA IURAN -->
+  <div id="modalForm" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative">
+      <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <h3 id="modal-title" class="text-lg font-bold text-slate-800 mb-4">Tambah Data Iuran</h3>
+      
+      <form id="iuranForm" onsubmit="handleFormSubmit(event)" class="space-y-3">
+        <input type="hidden" id="form-id">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Anggota</label>
+          <input type="text" id="form-nama" required class="w-full bg-slate-50 border border-slate-200 text-sm rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Periode</label>
+            <input type="text" id="form-periode" placeholder="Januari 2026" required class="w-full bg-slate-50 border border-slate-200 text-sm rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Nominal (Rp)</label>
+            <input type="number" id="form-nominal" required class="w-full bg-slate-50 border border-slate-200 text-sm rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Status</label>
+            <select id="form-status" class="w-full bg-slate-50 border border-slate-200 text-sm rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="Lunas">Lunas</option>
+              <option value="Belum Lunas">Belum Lunas</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">WhatsApp (628...)</label>
+            <input type="text" id="form-wa" placeholder="628123456789" required class="w-full bg-slate-50 border border-slate-200 text-sm rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Kegiatan</label>
+          <input type="text" id="form-kegiatan" placeholder="Contoh: Arisan / Pemasukan Kas" required class="w-full bg-slate-50 border border-slate-200 text-sm rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div class="pt-3 flex gap-2">
+          <button type="button" onclick="closeModal()" class="w-1/2 bg-slate-100 text-slate-600 py-2.5 rounded-lg text-sm font-semibold hover:bg-slate-200 transition">Batal</button>
+          <button type="submit" class="w-1/2 bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT INTEGRASI & LOGIKA -->
+  <script>
+    // GANTI URL INI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqCziJXKnPF7zXMOB_iN-cnM1W0ifnA_Ww89rDltxt98ANhR0I0QfgQ7Dt4f3JbuNB/exec";
+
+    // Dummy Data Awal (digunakan jika API belum dikonfigurasi)
+    let rawIuranData = [
+      { Id: "1", Nama: "Budi Santoso", Periode: "Januari 2026", Nominal: 100000, Status: "Lunas", WhatsApp: "6281234567890", Kegiatan: "Iuran Bulanan" },
+      { Id: "2", Nama: "Siti Rahma", Periode: "Januari 2026", Nominal: 100000, Status: "Belum Lunas", WhatsApp: "6289876543210", Kegiatan: "Iuran Bulanan" },
+      { Id: "3", Nama: "Ahmad Dahlan", Periode: "Januari 2026", Nominal: 100000, Status: "Belum Lunas", WhatsApp: "6285678901234", Kegiatan: "Iuran Bulanan" },
+      { Id: "4", Nama: "Eko Prasetyo", Periode: "Februari 2026", Nominal: 150000, Status: "Lunas", WhatsApp: "6281112223334", Kegiatan: "Iuran Kas" }
+    ];
+
+    let rawKomentarData = [
+      { Id: "1", Nama: "Admin", Tanggal: "2026-03-01", Deskripsi: "Mohon segera melunasi iuran sebelum tanggal 10." },
+      { Id: "2", Nama: "Budi Santoso", Tanggal: "2026-03-02", Deskripsi: "Saya sudah bayar via transfer ya min." }
+    ];
+
+    let chartKeuanganObj = null;
+    let chartStatusObj = null;
+
+    // Inisialisasi saat Halaman Dimuat
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      initCharts();
+      renderTableIuran(rawIuranData);
+      renderKomentar(rawKomentarData);
+      
+      // Jika URL Google Apps Script diatur, panggil data langsung
+      if (APPS_SCRIPT_URL !== "https://script.google.com/macros/s/AKfycbzqCziJXKnPF7zXMOB_iN-cnM1W0ifnA_Ww89rDltxt98ANhR0I0QfgQ7Dt4f3JbuNB/exec") {
+        loadDataFromGSheet();
+      }
+    });
+
+    // Integrated Google Apps Script Fetch Function
+    async function loadDataFromGSheet() {
+      try {
+        const res = await fetch(APPS_SCRIPT_URL + "?action=read");
+        const json = await res.json();
+        if (json.iuran) {
+          rawIuranData = json.iuran;
+          renderTableIuran(rawIuranData);
+          updateCharts();
+        }
+        if (json.pengumuman) {
+          rawKomentarData = json.pengumuman;
+          renderKomentar(rawKomentarData);
+        }
+      } catch (err) {
+        console.error("Gagal mengambil data Apps Script:", err);
+      }
+    }
+
+    // Render Tabel Iuran
+    function renderTableIuran(data) {
+      const tbody = document.getElementById("table-iuran-body");
+      tbody.innerHTML = "";
+
+      data.forEach(item => {
+        const isLunas = item.Status.toLowerCase() === "lunas";
+        const tr = document.createElement("tr");
+        tr.className = "border-b border-slate-50 hover:bg-slate-50/80 transition";
+        tr.innerHTML = `
+          <td class="px-4 py-3 font-mono text-xs text-slate-400">#${item.Id}</td>
+          <td class="px-4 py-3 font-semibold text-slate-800">${item.Nama}</td>
+          <td class="px-4 py-3">${item.Periode}</td>
+          <td class="px-4 py-3 font-medium">Rp ${Number(item.Nominal).toLocaleString('id-ID')}</td>
+          <td class="px-4 py-3">
+            <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${isLunas ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
+              ${item.Status}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-slate-500">${item.Kegiatan}</td>
+          <td class="px-4 py-3 text-center">
+            <div class="flex items-center justify-center gap-2">
+              <button onclick="editIuran('${item.Id}')" class="p-1.5 text-slate-500 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 transition">
+                <i data-lucide="edit-3" class="w-4 h-4"></i>
+              </button>
+              ${!isLunas ? `
+                <a href="https://wa.me/${item.WhatsApp}?text=Halo%20${encodeURIComponent(item.Nama)},\%20mengingatkan\%20pembayaran\%20iuran\%20kegiatan\%20*${encodeURIComponent(item.Kegiatan)}*%20periode%20*${encodeURIComponent(item.Periode)}*\%20sebesar\%20*Rp\%20${Number(item.Nominal).toLocaleString('id-ID')}*%20belum%20lunas.%20Mohon%20segera%20dilakukan%20pembayaran.%20Terima%20kasih!" 
+                   target="_blank" 
+                   class="inline-flex items-center gap-1 text-xs bg-emerald-500 hover:bg-emerald-600 text-white px-2.5 py-1 rounded-md shadow-sm transition">
+                  <i data-lucide="send" class="w-3 h-3"></i> WA
+                </a>
+              ` : ''}
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      lucide.createIcons();
+    }
+
+    // Render List Komentar
+    function renderKomentar(data) {
+      const list = document.getElementById("komentar-list");
+      list.innerHTML = "";
+      data.forEach(k => {
+        const div = document.createElement("div");
+        div.className = "bg-slate-50 p-3 rounded-xl border border-slate-100";
+        div.innerHTML = `
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-xs font-bold text-indigo-600">${k.Nama}</span>
+            <span class="text-[10px] text-slate-400">${k.Tanggal}</span>
+          </div>
+          <p class="text-xs text-slate-700">${k.Deskripsi}</p>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    // Chart Inisialisasi
+    function initCharts() {
+      const ctx1 = document.getElementById('chartKeuangan').getContext('2d');
+      const ctx2 = document.getElementById('chartStatus').getContext('2d');
+
+      chartKeuanganObj = new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+          labels: ['Pemasukan (Lunas)', 'Estimasi Belum Lunas'],
+          datasets: [{ data: [75, 25], backgroundColor: ['#6366f1', '#f43f5e'] }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+
+      chartStatusObj = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+          labels: ['Lunas', 'Belum Lunas'],
+          datasets: [{ data: [1, 2], backgroundColor: ['#10b981', '#f43f5e'] }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+
+      updateCharts();
+    }
+
+    // Update Chart berdasarkan filter periode
+    function updateCharts() {
+      const selectedPeriode = document.getElementById("filter-periode").value;
+      const filtered = selectedPeriode === "ALL" 
+        ? rawIuranData 
+        : rawIuranData.filter(d => d.Periode === selectedPeriode);
+
+      let lunasCount = 0;
+      let belumLunasCount = 0;
+      let nominalLunas = 0;
+      let nominalBelumLunas = 0;
+
+      filtered.forEach(item => {
+        if (item.Status.toLowerCase() === "lunas") {
+          lunasCount++;
+          nominalLunas += Number(item.Nominal);
+        } else {
+          belumLunasCount++;
+          nominalBelumLunas += Number(item.Nominal);
+        }
+      });
+
+      // Update Chart Keuangan
+      chartKeuanganObj.data.datasets[0].data = [nominalLunas, nominalBelumLunas];
+      chartKeuanganObj.update();
+
+      // Update Chart Status
+      chartStatusObj.data.datasets[0].data = [lunasCount, belumLunasCount];
+      chartStatusObj.update();
+    }
+
+    // Handler Tambah/Edit Data Modal
+    function openModal() {
+      document.getElementById("modal-title").innerText = "Tambah Data Iuran";
+      document.getElementById("iuranForm").reset();
+      document.getElementById("form-id").value = "";
+      document.getElementById("modalForm").classList.remove("hidden");
+      document.getElementById("modalForm").classList.add("flex");
+    }
+
+    function closeModal() {
+      document.getElementById("modalForm").classList.add("hidden");
+      document.getElementById("modalForm").classList.remove("flex");
+    }
+
+    function editIuran(id) {
+      const item = rawIuranData.find(d => d.Id === id);
+      if (!item) return;
+
+      document.getElementById("modal-title").innerText = "Edit Data Iuran";
+      document.getElementById("form-id").value = item.Id;
+      document.getElementById("form-nama").value = item.Nama;
+      document.getElementById("form-periode").value = item.Periode;
+      document.getElementById("form-nominal").value = item.Nominal;
+      document.getElementById("form-status").value = item.Status;
+      document.getElementById("form-wa").value = item.WhatsApp;
+      document.getElementById("form-kegiatan").value = item.Kegiatan;
+
+      document.getElementById("modalForm").classList.remove("hidden");
+      document.getElementById("modalForm").classList.add("flex");
+    }
+
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      const id = document.
